@@ -50,7 +50,7 @@ Major.Minor.Patch
 Coding Style
 ---
 
-暫無規定、但要能執行
+暫無規定、但要確保能執行
 
 API Document
 ---
