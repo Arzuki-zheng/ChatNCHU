@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.12'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.cloud.tools.jib' version '3.4.0'
+}
+
+group = 'com.chatnchu'
+version = '0.0.1-SNAPSHOT'
+description = 'backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+jib {
+    from {
+        image = 'eclipse-temurin:21-jre' // 指定使用 Java 21 Runtime
+    }
+    to {
+        // 設定你要推送到 Docker Hub 的 Image 名稱
+        // 格式：你的DockerHub帳號/專案名稱
+        image = 'arzuki/chatnchu-backend'
+
+        // 如果你的 Docker Hub 是 private repository，可能需要設定帳號密碼
+        // 建議用 docker login 登入就好，這裡可以不寫 auth
+    }
+    container {
+        // 設定 JVM 參數，例如時區
+        jvmFlags = ['-Duser.timezone=Asia/Taipei']
+        // 開放 port
+        ports = ['8080']
+    }
+}
