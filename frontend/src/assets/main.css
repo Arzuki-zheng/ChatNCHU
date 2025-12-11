@@ -1,0 +1,25 @@
+/* src/assets/main.css */
+
+/* 1. CSS Reset: 清除瀏覽器預設邊距 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', '微軟正黑體', sans-serif; /* 設定好讀的字體 */
+  background-color: #f3f4f6; /* 柔和的淺灰背景 */
+  overflow: hidden; /* 防止整個視窗出現雙重捲軸 */
+}
+
+#app {
+  height: 100vh; /* 讓 Vue 應用程式佔滿整個視窗高度 */
+  width: 100vw;
+  display: flex; /* 開啟 Flexbox 佈局 */
+}
