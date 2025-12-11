@@ -9,8 +9,8 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class AiService {
 
-    // 從設定檔讀取 Python API 網址，預設為 localhost:8000
-    @Value("${app.ai.api-url:http://localhost:8000}")
+    // 從設定檔讀取 Python API 網址，預設為 localhost:5000
+    @Value("${app.ai.api-url:http://localhost:5000}")
     private String pythonApiUrl;
 
     private final RestTemplate restTemplate;
