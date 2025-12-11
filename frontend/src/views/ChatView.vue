@@ -7,23 +7,27 @@
       </div>
 
       <div v-for="msg in chatStore.messages" :key="msg.id" class="message-row">
-        <div :class="['bubble', msg.role === 'user' ? 'bubble-user' : 'bubble-ai']">
-          <div class="content">{{ msg.content }}</div>
-
-          <div v-if="msg.sources && msg.sources.length" class="sources-list">
-            <small>參考來源：</small>
-            <div v-for="(source, idx) in msg.sources" :key="idx" class="source-item">
-              📄 {{ source.title }}
+        
+        <div :class="['bubble', 'bubble-' + msg.role.toLowerCase()]">
+        
+            <div class="sender-name">{{ msg.role === 'USER' ? userStore.userInfo?.name || '你' : 'NCHU AI' }}</div>
+            
+            <div class="content">{{ msg.content }}</div>
+            
+            <div v-if="msg.sources && msg.sources.length" class="sources-list">
+                <small>參考來源：</small>
+                <div v-for="(source, idx) in msg.sources" :key="idx" class="source-item">
+                    📄 {{ source.title }}
+                </div>
             </div>
-          </div>
         </div>
       </div>
 
       <div v-if="chatStore.isLoading" class="message-row">
-        <div class="bubble bubble-ai typing-indicator">
-          <span>.</span><span>.</span><span>.</span>
+        <div class="bubble bubble-assistant typing-indicator">
+            <span>.</span><span>.</span><span>.</span>
         </div>
-      </div>
+    </div>
     </div>
 
     <div class="input-container">
@@ -51,13 +55,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
-import { useChatStore } from '@/stores/chat'
-import { useChatApi } from '@/composables/useChatApi'
+import { ref, watch, nextTick } from 'vue';
+import { useChatStore } from '@/stores/chat'; 
+import { useUserStore } from '@/stores/user';
 
 // 初始化 Store 和 API
-const chatStore = useChatStore()
-const { sendMessage } = useChatApi()
+const chatStore = useChatStore();
+const userStore = useUserStore();
 
 const inputMessage = ref('')
 const messagesContainer = ref<HTMLElement | null>(null)
@@ -72,16 +76,26 @@ const scrollToBottom = () => {
 }
 
 // 監聽訊息變化，有新訊息就捲動
-watch(() => chatStore.messages.length, scrollToBottom)
+watch(
+  () => chatStore.messages.length, 
+  () => {
+    scrollToBottom();
+  }
+);
 
+/**
+ * 處理訊息發送，呼叫 Store 中的 action
+ */
 const handleSend = async () => {
-  if (!inputMessage.value.trim()) return
+    const query = inputMessage.value.trim();
+    if (!query || chatStore.isLoading || !chatStore.currentChatId) return;
 
-  const query = inputMessage.value
-  inputMessage.value = '' // 清空輸入框
-
-  await sendMessage(query)
-}
+    // 呼叫 Store 中的業務邏輯
+    await chatStore.sendMessage(query);
+    
+    // 清空輸入框
+    inputMessage.value = '';
+};
 </script>
 
 <style scoped>

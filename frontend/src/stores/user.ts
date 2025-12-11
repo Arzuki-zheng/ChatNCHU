@@ -1,37 +1,35 @@
+// D:\git\ChatNCHU\frontend\src\stores\user.ts (修正後)
+
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
 
-// 👇 定義 Google 給我們的使用者資料長什麼樣子
-interface GoogleUserInfo {
-  name: string
-  picture: string
-  email: string
-  sub: string
+// 定義後端回傳的用戶資料結構
+interface UserDataFromBackend {
+  id: number
+  name: string
+  email: string
+  picture: string
+  // ...
 }
 
 export const useUserStore = defineStore('user', () => {
-  const token = ref<string>('')
+  const userInfo = ref<UserDataFromBackend | null>(null)
+  const jwtToken = ref<string | null>(null); // 🔥 新增：儲存 JWT Token
+  
+  const isLoggedIn = computed(() => !!userInfo.value)
+  
+  /**
+   * 接收並設置後端驗證後的用戶資料
+   */
+  function setUserInfo(data: UserDataFromBackend, token: string) { // 🔥 接收 Token
+    userInfo.value = data
+    jwtToken.value = token; // 儲存 Token
+  }
 
-  // 👇 這裡改用我們定義好的 GoogleUserInfo，而不是 any
-  const userInfo = ref<GoogleUserInfo | null>(null)
-
-  const isLoggedIn = computed(() => !!token.value)
-
-  function setToken(newToken: string) {
-    token.value = newToken
-  }
-
-  async function fetchGoogleUserInfo(accessToken: string) {
-    try {
-      const res = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      userInfo.value = res.data
-    } catch (error) {
-      console.error('Failed to fetch user info', error)
-    }
-  }
-
-  return { token, userInfo, isLoggedIn, setToken, fetchGoogleUserInfo }
+  return { 
+    userInfo, 
+    isLoggedIn, 
+    jwtToken, // 導出 Token
+    setUserInfo 
+  }
 })
